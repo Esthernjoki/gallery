@@ -1,0 +1,60 @@
+def COLOR_MAP = [
+    'SUCCESS': 'good',
+    'FAILURE': 'danger',
+]
+def APP_URL = 'https://gallery-a3rf.onrender.com'
+
+pipeline {
+    agent any
+
+    tools {nodejs "node"}
+
+    stages {
+        stage('Start') {
+            steps {
+                echo 'Build starting'
+            }
+        }
+        stage('Clone repo') {
+            steps {
+                git url: 'https://github.com/Esthernjoki/gallery.git', branch:'master'
+            }
+        }
+
+
+        stage('Install Dependencies') {
+            steps {
+                bat 'npm install'
+            }
+        }
+
+
+        stage('Run Tests') {
+            steps {
+                bat 'npm test'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                bat 'curl -X POST https://api.render.com/deploy/srv-cggs0vceoogqfc4ahkjg?key=yBpsjfFp81o'
+            }
+        }
+
+        stage('Success') {
+            steps {
+                echo 'Done'
+            }
+        }
+    }
+    post {
+        always {
+            slackSend channel: '#estherip1',
+                color: COLOR_MAP[currentBuild.currentResult],
+                message: "*${currentBuild.currentResult}:* Job ${JOB_NAME} build ${BUILD_NUMBER} \n Application can be found at ${APP_URL} \n More information can be found at: ${BUILD_URL}HTML_20Report/"
+            emailext subject: "Build ${currentBuild.currentResult}: Job ${JOB_NAME} build ${BUILD_NUMBER}",
+                body: "The build for Job ${JOB_NAME} build ${BUILD_NUMBER} a ${currentBuild.currentResult}. \n Application can be found at ${APP_URL} \n More information can be found at: ${BUILD_URL}HTML_20Report/",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']]
+        }
+    }
+}
