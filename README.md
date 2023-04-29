@@ -5,7 +5,7 @@ Esther Njoki Mwangi
 March, 2023
 
 Live Site
-live website is availabe here
+live website is availabe here https://esthernjoki.github.io/gallery/
 
 Project Description
 The project entails deploying the gallery project to render via Jenkins pipeline. The project has 4 Milestones
